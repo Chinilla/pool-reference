@@ -8,10 +8,10 @@ import asyncio
 import aiomysql
 import pymysql
 from blspy import G1Element
-from chia.pools.pool_wallet_info import PoolState
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.coin_solution import CoinSpend
-from chia.util.ints import uint64
+from chinilla.pools.pool_wallet_info import PoolState
+from chinilla.types.blockchain_format.sized_bytes import bytes32
+from chinilla.types.coin_solution import CoinSpend
+from chinilla.util.ints import uint64
 
 from .abstract import AbstractPoolStore
 from ..record import FarmerRecord
@@ -63,7 +63,7 @@ class MariadbPoolStore(AbstractPoolStore):
                 " payout_instructions text,"
                 " is_pool_member tinyint,"
                 " blocks int,"
-                " xch_paid float)"
+                " hcx_paid float)"
             )
         )
 

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict, Mapping
 
-from chia.protocols.pool_protocol import PoolErrorCode, ErrorResponse
-from chia.util.ints import uint16
-from chia.util.json_util import obj_to_response
+from chinilla.protocols.pool_protocol import PoolErrorCode, ErrorResponse
+from chinilla.util.ints import uint16
+from chinilla.util.json_util import obj_to_response
 
 
 def error_response(code: PoolErrorCode, message: str):
@@ -26,7 +26,7 @@ class RequestMetadata:
     scheme: str  # for example https
     headers: Mapping[str, str]  # header names are all lower case
     cookies: Dict[str, str]
-    query: Dict[str, str]  # query params passed in the url. These are not used by chia clients at the moment, but
+    query: Dict[str, str]  # query params passed in the url. These are not used by chinilla clients at the moment, but
     # allow for a lot of adjustments and thanks to including them now they can be used without introducing breaking changes
     remote: str  # address of the client making the request
 

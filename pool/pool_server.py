@@ -10,7 +10,7 @@ import aiohttp
 import yaml
 from blspy import AugSchemeMPL, G2Element
 from aiohttp import web
-from chia.protocols.pool_protocol import (
+from chinilla.protocols.pool_protocol import (
     PoolErrorCode,
     GetFarmerResponse,
     GetPoolInfoResponse,
@@ -21,15 +21,15 @@ from chia.protocols.pool_protocol import (
     POOL_PROTOCOL_VERSION,
     AuthenticationPayload,
 )
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.util.byte_types import hexstr_to_bytes
-from chia.util.hash import std_hash
-from chia.consensus.default_constants import DEFAULT_CONSTANTS
-from chia.consensus.constants import ConsensusConstants
-from chia.util.json_util import obj_to_response
-from chia.util.ints import uint8, uint64, uint32
-from chia.util.default_root import DEFAULT_ROOT_PATH
-from chia.util.config import load_config
+from chinilla.types.blockchain_format.sized_bytes import bytes32
+from chinilla.util.byte_types import hexstr_to_bytes
+from chinilla.util.hash import std_hash
+from chinilla.consensus.default_constants import DEFAULT_CONSTANTS
+from chinilla.consensus.constants import ConsensusConstants
+from chinilla.util.json_util import obj_to_response
+from chinilla.util.ints import uint8, uint64, uint32
+from chinilla.util.default_root import DEFAULT_ROOT_PATH
+from chinilla.util.config import load_config
 
 from .record import FarmerRecord
 from .pool import Pool
@@ -99,7 +99,7 @@ class PoolServer:
         return inner
 
     async def index(self, _) -> web.Response:
-        return web.Response(text="Chia reference pool")
+        return web.Response(text="Chinilla reference pool")
 
     async def get_pool_info(self, _) -> web.Response:
         res: GetPoolInfoResponse = GetPoolInfoResponse(

@@ -2,8 +2,8 @@ from typing import List, Optional, Tuple
 import logging
 
 from blspy import G2Element
-from chia.consensus.coinbase import pool_parent_id
-from chia.pools.pool_puzzles import (
+from chinilla.consensus.coinbase import pool_parent_id
+from chinilla.pools.pool_puzzles import (
     create_absorb_spend,
     solution_to_pool_state,
     get_most_recent_singleton_coin_from_coin_spend,
@@ -11,19 +11,19 @@ from chia.pools.pool_puzzles import (
     create_full_puzzle,
     get_delayed_puz_info_from_launcher_spend,
 )
-from chia.pools.pool_wallet import PoolSingletonState
-from chia.pools.pool_wallet_info import PoolState
-from chia.rpc.full_node_rpc_client import FullNodeRpcClient
-from chia.rpc.wallet_rpc_client import WalletRpcClient
-from chia.types.announcement import Announcement
-from chia.types.blockchain_format.coin import Coin
-from chia.types.blockchain_format.program import Program, SerializedProgram
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.coin_record import CoinRecord
-from chia.types.coin_spend import CoinSpend
-from chia.types.spend_bundle import SpendBundle
-from chia.util.ints import uint32, uint64
-from chia.wallet.transaction_record import TransactionRecord
+from chinilla.pools.pool_wallet import PoolSingletonState
+from chinilla.pools.pool_wallet_info import PoolState
+from chinilla.rpc.full_node_rpc_client import FullNodeRpcClient
+from chinilla.rpc.wallet_rpc_client import WalletRpcClient
+from chinilla.types.announcement import Announcement
+from chinilla.types.blockchain_format.coin import Coin
+from chinilla.types.blockchain_format.program import Program, SerializedProgram
+from chinilla.types.blockchain_format.sized_bytes import bytes32
+from chinilla.types.coin_record import CoinRecord
+from chinilla.types.coin_spend import CoinSpend
+from chinilla.types.spend_bundle import SpendBundle
+from chinilla.util.ints import uint32, uint64
+from chinilla.wallet.transaction_record import TransactionRecord
 
 
 from .record import FarmerRecord

@@ -8,9 +8,9 @@ from math import floor
 from typing import Dict, Optional, Set, List, Tuple, Callable
 
 from blspy import AugSchemeMPL, G1Element
-from chia.consensus.block_rewards import calculate_pool_reward
-from chia.pools.pool_wallet_info import PoolState, PoolSingletonState
-from chia.protocols.pool_protocol import (
+from chinilla.consensus.block_rewards import calculate_pool_reward
+from chinilla.pools.pool_wallet_info import PoolState, PoolSingletonState
+from chinilla.protocols.pool_protocol import (
     PoolErrorCode,
     PostPartialRequest,
     PostPartialResponse,
@@ -20,25 +20,25 @@ from chia.protocols.pool_protocol import (
     PutFarmerResponse,
     POOL_PROTOCOL_VERSION,
 )
-from chia.rpc.wallet_rpc_client import WalletRpcClient
-from chia.types.blockchain_format.coin import Coin
-from chia.types.coin_record import CoinRecord
-from chia.types.coin_spend import CoinSpend
-from chia.types.spend_bundle import SpendBundle
-from chia.util.bech32m import decode_puzzle_hash
-from chia.consensus.constants import ConsensusConstants
-from chia.util.ints import uint8, uint16, uint32, uint64
-from chia.util.byte_types import hexstr_to_bytes
-from chia.util.default_root import DEFAULT_ROOT_PATH
-from chia.rpc.full_node_rpc_client import FullNodeRpcClient
-from chia.full_node.signage_point import SignagePoint
-from chia.types.end_of_slot_bundle import EndOfSubSlotBundle
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.consensus.pot_iterations import calculate_iterations_quality
-from chia.util.lru_cache import LRUCache
-from chia.util.chia_logging import initialize_logging
-from chia.wallet.transaction_record import TransactionRecord
-from chia.pools.pool_puzzles import (
+from chinilla.rpc.wallet_rpc_client import WalletRpcClient
+from chinilla.types.blockchain_format.coin import Coin
+from chinilla.types.coin_record import CoinRecord
+from chinilla.types.coin_spend import CoinSpend
+from chinilla.types.spend_bundle import SpendBundle
+from chinilla.util.bech32m import decode_puzzle_hash
+from chinilla.consensus.constants import ConsensusConstants
+from chinilla.util.ints import uint8, uint16, uint32, uint64
+from chinilla.util.byte_types import hexstr_to_bytes
+from chinilla.util.default_root import DEFAULT_ROOT_PATH
+from chinilla.rpc.full_node_rpc_client import FullNodeRpcClient
+from chinilla.full_node.signage_point import SignagePoint
+from chinilla.types.end_of_slot_bundle import EndOfSubSlotBundle
+from chinilla.types.blockchain_format.sized_bytes import bytes32
+from chinilla.consensus.pot_iterations import calculate_iterations_quality
+from chinilla.util.lru_cache import LRUCache
+from chinilla.util.chinilla_logging import initialize_logging
+from chinilla.wallet.transaction_record import TransactionRecord
+from chinilla.pools.pool_puzzles import (
     get_most_recent_singleton_coin_from_coin_spend,
     get_delayed_puz_info_from_launcher_spend,
     launcher_id_to_p2_puzzle_hash,
@@ -164,7 +164,7 @@ class Pool:
         # Whether or not the wallet is synced (required to make payments)
         self.wallet_synced = False
 
-        # The fee to pay ( In mojo ) when claiming a block reward
+        # The fee to pay ( In vojo ) when claiming a block reward
         self.claim_fee: uint64 = uint64(pool_config.get("block_claim_fee", 0))
 
         # We target these many partials for this number of seconds. We adjust after receiving this many partials.
@@ -390,7 +390,7 @@ class Pool:
                 pool_coin_amount = int(total_amount_claimed * self.pool_fee)
                 amount_to_distribute = total_amount_claimed - pool_coin_amount
 
-                if total_amount_claimed < calculate_pool_reward(uint32(1)):  # 1.75 XCH
+                if total_amount_claimed < calculate_pool_reward(uint32(1)):  # 1.75 HCX
                     self.log.info(f"Do not have enough funds to distribute: {total_amount_claimed}, skipping payout")
                     await asyncio.sleep(120)
                     continue
@@ -400,22 +400,22 @@ class Pool:
                 self.log.info(f"Total amount to distribute: {amount_to_distribute / (10 ** 12)}")
 
                 async with self.store.lock:
-                    # Get the points of each farmer, as well as payout instructions. Here a chia address is used,
+                    # Get the points of each farmer, as well as payout instructions. Here a chinilla address is used,
                     # but other blockchain addresses can also be used.
                     points_and_ph: List[
                         Tuple[uint64, bytes]
                     ] = await self.store.get_farmer_points_and_payout_instructions()
                     total_points = sum([pt for (pt, ph) in points_and_ph])
                     if total_points > 0:
-                        mojo_per_point = floor(amount_to_distribute / total_points)
-                        self.log.info(f"Paying out {mojo_per_point} mojo / point")
+                        vojo_per_point = floor(amount_to_distribute / total_points)
+                        self.log.info(f"Paying out {vojo_per_point} vojo / point")
 
                         additions_sub_list: List[Dict] = [
                             {"puzzle_hash": self.pool_fee_puzzle_hash, "amount": pool_coin_amount}
                         ]
                         for points, ph in points_and_ph:
                             if points > 0:
-                                additions_sub_list.append({"puzzle_hash": ph, "amount": points * mojo_per_point})
+                                additions_sub_list.append({"puzzle_hash": ph, "amount": points * vojo_per_point})
 
                             if len(additions_sub_list) == self.max_additions_per_transaction:
                                 await self.pending_payments.put(additions_sub_list.copy())
@@ -582,7 +582,7 @@ class Pool:
             if len(decode_puzzle_hash(payout_instructions)) == 32:
                 return decode_puzzle_hash(payout_instructions).hex()
         except ValueError:
-            # Not a Chia address
+            # Not a Chinilla address
             pass
         try:
             if len(hexstr_to_bytes(payout_instructions)) == 32:
@@ -624,7 +624,7 @@ class Pool:
             if puzzle_hash is None:
                 return error_dict(
                     PoolErrorCode.INVALID_PAYOUT_INSTRUCTIONS,
-                    f"Payout instructions must be an xch address or puzzle hash for this pool.",
+                    f"Payout instructions must be an hcx address or puzzle hash for this pool.",
                 )
 
             if not AugSchemeMPL.verify(last_state.owner_pubkey, request.payload.get_hash(), request.signature):
@@ -720,7 +720,7 @@ class Pool:
         self.farmer_update_blocked.add(launcher_id)
         asyncio.create_task(update_farmer_later())
 
-        # TODO Fix chia-blockchain's Streamable implementation to support Optional in `from_json_dict`, then use
+        # TODO Fix chinilla-blockchain's Streamable implementation to support Optional in `from_json_dict`, then use
         # PutFarmerResponse here and in the trace up.
         return response_dict
 
